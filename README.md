@@ -1,6 +1,6 @@
 # Desktop Cat
 
-A little white-and-grey cat with pink ears and brown eyes who lives on the Windows desktop. She
+A little white-and-grey cat who lives on the Windows desktop. She
 sits in the corner of the screen, on top of everything else, and keeps you company while you work.
 
 ## What she does
