@@ -1,11 +1,15 @@
-"""Makes the animation the Windows cat has on top of the original art: `blanket`, her sleeping
-frames with a black-and-white plaid blanket tucked over her body (Sleep Mode).
+"""Makes the animations the Windows cat has on top of the original art:
 
-It's drawn onto the grey frames in windows/assets/Animations, so run recolor_grey.py first:
+- `blanket`: her sleeping frames with a black-and-white plaid blanket tucked over her (Sleep Mode).
+- `paperPlay`, `paperChase`, `paperEnd`: she finds a crumpled paper ball, bats it about, chases
+  it across the screen, and sits back pleased with herself on the other side.
+
+They're drawn onto the grey frames in windows/assets/Animations, so run recolor_grey.py first:
 
     python windows/tools/recolor_grey.py
     python windows/tools/make_extras.py
 """
+import math
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
@@ -121,5 +125,75 @@ def make_blanket():
     print(f"blanket: {count} frames")
 
 
+# MARK: - Paper ball
+
+# 10×10 art pixels. o outline, P paper, p light crease, c dark crease, s shadow.
+PAPER = [
+    "...oooo...",
+    "..oPPpPo..",
+    ".oPpPPcPo.",
+    "oPPcPpPPso",
+    "oPpPPPcPso",
+    "ocPPpPPpso",
+    "oPPPcPPsso",
+    ".oPpPPsso.",
+    "..osssso..",
+    "...oooo...",
+]
+PAPER_COLORS = {"o": (74, 70, 82), "P": (246, 243, 234), "p": (216, 211, 198),
+                "c": (176, 170, 156), "s": (206, 200, 186)}
+
+
+def paper_ball(px=4) -> Image.Image:
+    """Drawn a little chunkier than the cat's pixels, so it reads at desktop size."""
+    im = Image.new("RGBA", (len(PAPER[0]) * px, len(PAPER) * px), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    for y, row in enumerate(PAPER):
+        for x, c in enumerate(row):
+            if c != ".":
+                d.rectangle([x * px, y * px, x * px + px - 1, y * px + px - 1], fill=(*PAPER_COLORS[c], 255))
+    return im
+
+
+BALL = paper_ball()
+BALL_Y = GROUND - BALL.height / 2 + 1    # resting on the floor
+BALL_X = 400                               # just in front of her paws
+
+
+def put_ball(im, cx, cy, turns):
+    ball = BALL.rotate(90 * (turns % 4))
+    im.alpha_composite(ball, (round(cx - ball.width / 2), round(cy - ball.height / 2)))
+    return im
+
+
+def make_paper():
+    w = 427
+    # 1. She spots it rolling in, then bats it about.
+    play = []
+    for k, i in enumerate(range(9, 18)):
+        t = k / 8
+        x = w + BALL.width - (w + BALL.width - BALL_X) * (1 - (1 - t) ** 2)
+        play.append(put_ball(frame("happy", i), x, BALL_Y, -int((w - x) / 10)))
+    for k, i in enumerate(range(18, 35)):
+        hop = abs(math.sin(k * math.pi / 4)) * (14 if k < 14 else 4)
+        play.append(put_ball(frame("happy", i), BALL_X + (4 if k % 4 < 2 else 0), BALL_Y - hop, k // 2))
+    # 2. Off she goes, nudging it along in front of her. Loops while she walks.
+    chase = []
+    count = len(list((ANIMATIONS / "walking").glob("frame_*.png")))
+    for i in range(count):
+        # It rolls a little ahead, she catches up and taps it on again: twice per loop.
+        phase = (i % (count // 2)) / (count // 2)
+        ahead = 6 * math.sin(phase * math.pi)   # kept small so the ball stays inside the frame
+        tap = 3 if phase < 0.08 else 0
+        chase.append(put_ball(frame("walking", i), BALL_X + ahead, BALL_Y - tap, i // 2))
+    # 3. Got it! She sits back, very pleased, with the ball at her feet.
+    end = [put_ball(frame("happy", i), BALL_X, BALL_Y, 0) for i in range(0, 9)]
+    for name, frames in (("paperPlay", play), ("paperChase", chase), ("paperEnd", end)):
+        for n, im in enumerate(frames):
+            save(im, name, n)
+        print(f"{name}: {len(frames)} frames")
+
+
 if __name__ == "__main__":
     make_blanket()
+    make_paper()

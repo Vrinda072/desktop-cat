@@ -3,7 +3,7 @@
 curledSleeping --hover--> one random action (+ a message, if the cooldown allows) -> curledSleeping
 Clicking shows a message (with the same cooldown).
 Every 5 minutes she wakes up and walks to the other side of the screen (no message), then sleeps
-there. Hovering does nothing while she walks.
+there; now and then she chases a paper ball across instead. Hovering does nothing while she walks.
 Timed messages and reminders play a short pose and speak, then she goes back to sleep.
 Her to-do note sits beside her. At the check-in times she asks about an unfinished task by name,
 she celebrates each one that gets ticked off, and she passes on nudges from the sheet.
@@ -32,6 +32,10 @@ SIZES = [("Small", 0.7), ("Medium", 1.0), ("Large", 1.4), ("Extra Large", 1.8)]
 MESSAGE_INTERVALS = [5, 15, 30, 60]
 
 FAR_FUTURE = float("inf")
+#: Animations that move her across the screen.
+WALKS = {"walking", "paperChase"}
+#: Everything that's part of a walk, start to finish. She stays quiet through all of it.
+OUT_AND_ABOUT = WALKS | {"paperPlay", "paperEnd"}
 
 
 class CatWindow(QWidget):
@@ -135,7 +139,9 @@ class CatController:
     RESTING_LINGERS = 6
     HOVER_DWELL = 0.4
     WALK_SPEED = 60     # logical pixels per second
+    CHASE_SPEED = 180   # she runs after her paper ball
     WALK_MARGIN = 40    # how far from the screen edge she stops
+    PAPER_CHANCE = 0.35 # how often a walk is a paper-ball chase instead
     LIVE_EVERY = 10     # seconds between looks at the sheet's Live tab
     LIVE_LINES = 5      # how many recent live lines her bubble keeps
 
@@ -171,6 +177,7 @@ class CatController:
         self.next_walk_at = FAR_FUTURE
         self.walking_right = True
         self._walk_x = None   # sub-pixel position while walking
+        self.ball_next = False   # the menu asked for the paper ball while she was busy
         self._walk_last = 0.0
         self.on_menu = None
 
@@ -234,6 +241,7 @@ class CatController:
         self.queue = []
         if value:
             self.bubble.hide_bubble()
+            self.window.facing_left = False
             self._enter("blanket")   # straight under the blanket, even mid-walk
         else:
             # Wide awake again: everything restarts its clock rather than all going off at once.
@@ -288,7 +296,7 @@ class CatController:
         self.state = state
         self.state_entered_at = time.time()
         spec = self.manifest.spec(state)
-        if state != "walking":
+        if state not in WALKS:
             self._stop_walking()
         self.window.offset_y = spec.offsetY * self.scale
         self.player.play(self.frames.frames(spec), spec.fps, spec.loop, lambda: self._finished(state))
@@ -300,12 +308,18 @@ class CatController:
     def _advance(self):
         """Plays the next animation in the sequence, or goes back to sleep when it's done. If a
         walk came due during an action, she sets off as soon as it ends."""
-        if self.queue and not self.sleep_mode:
+        if self.state == "paperPlay" and not self.sleep_mode:
+            self._begin_walk("paperChase")   # done batting it about: after it!
+        elif self.queue and not self.sleep_mode:
             self._enter(self.queue.pop(0))
+        elif self.ball_next and not self.sleep_mode:
+            self.ball_next = False
+            self._start_walking(with_ball=True)
         elif time.time() >= self.next_walk_at and not self.sleep_mode:
             self._start_walking()
         else:
             self.queue = []
+            self.window.facing_left = False
             self._enter(self._rest_state)
 
     @property
@@ -329,7 +343,7 @@ class CatController:
         if self.bubble.is_pinned:
             self._dismiss_nudge()
             return
-        if self.state != "walking":   # walks are silent
+        if self.state not in OUT_AND_ABOUT:   # walks are silent
             self._say_interactive(force=True)
 
     def _tick(self):
@@ -339,8 +353,8 @@ class CatController:
         # She stays put while a nudge is up, so it isn't carried off across the screen.
         if (self.state == "curledSleeping" and now >= self.next_walk_at and not self.bubble.is_pinned
                 and not self.sleep_mode):
-            self._start_walking()
-        if self.state == "walking":
+            self._start_walking(with_ball=random.random() < self.PAPER_CHANCE)
+        if self.state in OUT_AND_ABOUT:
             return
 
         self.todos.roll_over_if_new_day()
@@ -384,14 +398,33 @@ class CatController:
         screen = self.window.screen() or QGuiApplication.primaryScreen()
         return screen.availableGeometry()
 
-    def _start_walking(self):
+    def _start_walking(self, with_ball=False):
+        """Walks to the far side of the screen (the side with more room). With the ball, she first
+        bats it about where she is, then chases it across."""
         self.queue = []
         self.bubble.hide_bubble()
         screen, frame = self._screen_rect(), self.window.frameGeometry()
         self.walking_right = screen.right() - frame.right() >= frame.left() - screen.left()
-        self._enter("walking")
+        if with_ball:
+            self._enter("paperPlay")
+            self.window.facing_left = not self.walking_right   # the ball goes the way she's going
+            self.window.update()
+        else:
+            self._begin_walk("walking")
+
+    def _begin_walk(self, animation):
+        self._enter(animation)
         self._walk_last = time.time()
         self._walk_timer.start(1000 // 30)
+
+    def play_with_ball(self):
+        """From the menu: she chases her paper ball across the screen (if she's free to)."""
+        if self.sleep_mode:
+            self.show("Zzz... I'm all tucked in. Maybe after my nap.")
+        elif self.state == "curledSleeping":
+            self._start_walking(with_ball=True)
+        elif self.state not in OUT_AND_ABOUT:
+            self.ball_next = True   # busy with something quick: she goes for it right after
 
     def _step_walk(self):
         now = time.time()
@@ -405,12 +438,18 @@ class CatController:
         if self._walk_x is None or abs(self._walk_x - frame.x()) >= 1:
             self._walk_x = float(frame.x())
         remaining = target_x - self._walk_x
-        step = self.WALK_SPEED * dt
+        step = (self.CHASE_SPEED if self.state == "paperChase" else self.WALK_SPEED) * dt
         self.window.facing_left = remaining < 0   # the walking art faces right
         if abs(remaining) <= step:
             self._walk_x = None
             self.window.move(target_x, frame.y())
-            self._enter(self._rest_state)
+            if self.state == "paperChase":
+                facing = self.window.facing_left
+                self._enter("paperEnd")   # sits back with her ball, still facing the way she went
+                self.window.facing_left = facing
+                self.window.update()
+            else:
+                self._enter(self._rest_state)
         else:
             self._walk_x += -step if remaining < 0 else step
             self.window.move(round(self._walk_x), frame.y())

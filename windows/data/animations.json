@@ -63,6 +63,27 @@
       "loop": true,
       "start": 0,
       "offsetY": 0
+    },
+    "paperPlay": {
+      "folder": "paperPlay",
+      "fps": 16,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "paperChase": {
+      "folder": "paperChase",
+      "fps": 22,
+      "loop": true,
+      "start": 0,
+      "offsetY": 0
+    },
+    "paperEnd": {
+      "folder": "paperEnd",
+      "fps": 10,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
     }
   }
 }

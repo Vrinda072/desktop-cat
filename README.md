@@ -12,6 +12,8 @@ sits in the corner of the screen, on top of everything else, and keeps you compa
   says something on her own too (every 5, 15, 30 or 60 minutes, your choice).
 - **Wanders.** Every 5 minutes she gets up, walks to the other side of the screen and settles
   down there.
+- **Plays.** Sometimes she finds a crumpled paper ball instead, bats it about, and dashes across
+  the screen after it.
 - **Reminds you to look after yourself.** Drink some water every hour, stretch every 90 minutes
   (she stretches with you), and have a snack every 4 hours.
 - **Keeps your to-do list.** A little yellow sticky note sits beside her and follows her around.
@@ -40,6 +42,7 @@ Right-click her, or click the paw print in the system tray:
 
 - **To-Do Note**: show or hide her note.
 - **Say Something**: she says something right away.
+- **Play With Paper Ball**: she chases her paper ball across the screen.
 - **Sleep Mode**: under the blanket she goes.
 - **Quiet Mode**: she only talks when you click her.
 - **Water & Stretch Reminders**: turn the reminders on or off.

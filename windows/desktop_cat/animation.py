@@ -9,7 +9,7 @@ from . import resources
 
 #: The cat's states. Each one has an entry with the same name in animations.json.
 STATES = ["curledSleeping", "stretching", "yawning", "curious", "happy", "awake", "resting", "walking",
-          "blanket"]
+          "blanket", "paperPlay", "paperChase", "paperEnd"]
 
 
 @dataclass

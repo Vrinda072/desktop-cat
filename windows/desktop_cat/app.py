@@ -63,6 +63,7 @@ class Tray:
         cat.on_note_open_change(lambda: self.note_item.setChecked(cat.is_note_open))
         self.menu.addSeparator()
         self.menu.addAction("Say Something", cat.say)
+        self.menu.addAction("Play With Paper Ball", cat.play_with_ball)
         self.sleep_item = self._check("Sleep Mode (tucked in, only speaks when clicked)", cat.sleep_mode,
                                       self._toggle_sleep)
         self.quiet_item = self._check("Quiet Mode (only speaks when clicked)", cat.is_quiet, self._toggle_quiet)
