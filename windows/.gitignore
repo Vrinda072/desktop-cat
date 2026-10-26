@@ -1,0 +1,7 @@
+.venv/
+build/
+dist/
+*.spec
+__pycache__/
+# The messages sheet link: kept out of the repo, added at build time from a GitHub secret.
+data/link.txt

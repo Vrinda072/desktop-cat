@@ -1,0 +1,15 @@
+[
+  {
+    "text": "Water break! Drink some water for me.",
+    "everyMinutes": 60
+  },
+  {
+    "text": "Stretch with me for a second. Like this.",
+    "everyMinutes": 90,
+    "animation": "stretching"
+  },
+  {
+    "text": "Have you eaten something? Snacks are important.",
+    "everyMinutes": 240
+  }
+]

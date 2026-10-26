@@ -1,0 +1,68 @@
+{
+  "pointsPerPixel": 0.5,
+  "animations": {
+    "curledSleeping": {
+      "folder": "sleeping",
+      "fps": 10,
+      "loop": true,
+      "start": 0,
+      "offsetY": 0
+    },
+    "stretching": {
+      "folder": "stretching",
+      "fps": 12,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "yawning": {
+      "folder": "yawning",
+      "fps": 12,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "curious": {
+      "folder": "curious",
+      "fps": 12,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "happy": {
+      "folder": "happy",
+      "fps": 12,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "awake": {
+      "folder": "awake",
+      "fps": 12,
+      "loop": false,
+      "start": 0,
+      "offsetY": 0
+    },
+    "resting": {
+      "folder": "resting",
+      "fps": 12,
+      "loop": true,
+      "start": 0,
+      "offsetY": 0
+    },
+    "walking": {
+      "folder": "walking",
+      "fps": 12,
+      "loop": true,
+      "start": 0,
+      "offsetY": 0
+    },
+    "blanket": {
+      "folder": "blanket",
+      "fps": 10,
+      "loop": true,
+      "start": 0,
+      "offsetY": 0
+    }
+  }
+}

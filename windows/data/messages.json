@@ -1,0 +1,38 @@
+{
+  "hello": [
+    "Hi you. Someone sent me here to keep an eye on you.",
+    "Reporting for duty: professional desktop companion.",
+    "I was napping, but I'm happy you're here.",
+    "Psst. You're someone's favourite person, you know."
+  ],
+  "cheering": [
+    "You're doing so well. I'm very proud of you.",
+    "One thing at a time. You've got this.",
+    "Whatever it is, you'll figure it out. You always do.",
+    "Hard day? Take a breath. You're still amazing.",
+    "Even your bad days are better than you think.",
+    "Look at you, getting things done."
+  ],
+  "care": [
+    "Have you had water recently? Go on, I'll wait.",
+    "Don't forget to eat something nice today.",
+    "Shoulders down, jaw unclenched. There you go.",
+    "Remember to look away from the screen for a bit.",
+    "It's okay to take a break. I take about twelve a day.",
+    "Don't stay up too late, okay?"
+  ],
+  "love": [
+    "Someone is thinking about you right now.",
+    "You make someone's day better just by existing.",
+    "Sending you a very big, very soft hug.",
+    "If you were a cat, you'd be the best one.",
+    "You're my favourite human. Don't tell the others.",
+    "I was told to remind you that you're loved. A lot."
+  ],
+  "catThoughts": [
+    "I have decided this desktop is mine now.",
+    "Sometimes I think about tuna. Just so you know.",
+    "Nap count today: classified.",
+    "I'm grey, I'm fluffy, and I'm on your side."
+  ]
+}

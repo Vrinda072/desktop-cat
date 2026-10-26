@@ -1,0 +1,52 @@
+name: Windows build
+
+on:
+  push:
+    branches: [main]
+    paths: ["windows/**", "Resources/Animations/**", ".github/workflows/windows.yml"]
+  pull_request:
+    paths: ["windows/**", "Resources/Animations/**", ".github/workflows/windows.yml"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Add the messages sheet link
+        shell: pwsh
+        env:
+          MESSAGES_LINK: ${{ secrets.MESSAGES_LINK }}
+        run: |
+          if ($env:MESSAGES_LINK) {
+            Set-Content -Path windows\data\link.txt -Value $env:MESSAGES_LINK -NoNewline
+            Write-Host "Sheet link added"
+          } else {
+            Write-Host "::warning::No MESSAGES_LINK secret: this build won't read the messages sheet"
+          }
+
+      - name: Build DesktopCat.exe
+        shell: cmd
+        run: windows\build.bat
+
+      - name: Check it starts and stays running
+        shell: pwsh
+        run: |
+          $env:DESKTOP_CAT_DATA = "$env:RUNNER_TEMP\cat-data"
+          $p = Start-Process windows\dist\DesktopCat.exe -PassThru
+          Start-Sleep -Seconds 20
+          if ($p.HasExited) { Write-Error "DesktopCat exited during startup (code $($p.ExitCode))"; exit 1 }
+          if (-not (Test-Path "$env:DESKTOP_CAT_DATA\todos.json")) { Write-Error "No data folder was made"; exit 1 }
+          Stop-Process -Id $p.Id
+          Write-Host "DesktopCat was still running after 20 seconds"
+
+      - name: Upload DesktopCat.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: DesktopCat-windows
+          path: windows/dist/DesktopCat.exe
