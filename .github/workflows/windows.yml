@@ -21,13 +21,13 @@ jobs:
       - name: Add the messages sheet link
         shell: pwsh
         env:
-          MESSAGES_LINK: ${{ secrets.MESSAGES_LINK }}
+          MESSAGES_LINK: ${{ secrets.MESSAGESLINK }}
         run: |
           if ($env:MESSAGES_LINK) {
             Set-Content -Path windows\data\link.txt -Value $env:MESSAGES_LINK -NoNewline
             Write-Host "Sheet link added"
           } else {
-            Write-Host "::warning::No MESSAGES_LINK secret: this build won't read the messages sheet"
+            Write-Host "::warning::No MESSAGESLINK secret: this build won't read the messages sheet"
           }
 
       - name: Build DesktopCat.exe
